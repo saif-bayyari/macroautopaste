@@ -1,1 +1,1 @@
-# macroautopaste-dev
+# macroautopaste
