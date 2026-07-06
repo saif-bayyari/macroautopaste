@@ -149,4 +149,4 @@ def run():
         print("\n✗ Text expander stopped.")
 
 
-run()
+#run()
