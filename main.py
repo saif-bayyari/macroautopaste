@@ -37,6 +37,26 @@ def create_default_csv():
         writer.writerows(DEFAULT_SNIPPETS)
     print(f"  Created '{SNIPPETS_FILE}' with default snippets.")
 
+def load_guitext_in_csv(commandName, inputTxt):
+   # newsnippets = load_snippets()
+    #for k in newsnippets.items():
+      #  pureText = k[1]
+      #  print(k[1])
+    if not os.path.exists(SNIPPETS_FILE):
+        create_default_csv()
+    try:
+
+        with open(SNIPPETS_FILE, 'a', newline='') as f:
+            writer = csv.writer(f)
+            writer.writerow([commandName, inputTxt])
+
+    
+    except Exception as e:
+        print(f"  [!] Error reading CSV: {e}")
+        return {}
+
+        
+    
 
 def load_snippets():
     global snippets
@@ -117,6 +137,11 @@ def on_press(key):
     with snippets_lock:
         local_snippets = dict(snippets)
 
+
+
+
+
+#region of interest for claude
     for command, template in local_snippets.items():
         if current.endswith(command):
             time.sleep(0.05)
@@ -149,4 +174,6 @@ def run():
         print("\n✗ Text expander stopped.")
 
 
-run()
+#run()
+
+load_guitext_in_csv("/LILBABY", "First of all")
