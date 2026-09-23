@@ -2,35 +2,14 @@ import tkinter as tk
 from tkinter import messagebox
 import main
 import time
-
-import asyncio
-
-async def check_prefix_collision(new_trigger: str, snippets: dict) -> list[str]:
-    """
-    Returns a list of existing triggers that collide with new_trigger
-    as a prefix in either direction. Empty list means no collision.
-    """
-    collisions = []
-    for existing_trigger in snippets:
-        if existing_trigger == new_trigger:
-            collisions.append(existing_trigger)  # exact duplicate
-        elif existing_trigger.startswith(new_trigger) or new_trigger.startswith(existing_trigger):
-            collisions.append(existing_trigger)
-    return collisions
-
 import json
 
-path = 'snippets.json'
-def load_snippets(path):
-    with open(path, encoding='utf-8') as f:
-        return json.load(f)
 
 
-load_snippets(path)
 
-def save_snippets(path, snippets):
-    with open(path, 'w', encoding='utf-8') as f:
-        json.dump(snippets, f, indent=2, ensure_ascii=False)
+
+
+
 
 window = tk.Tk()
 
@@ -38,7 +17,67 @@ window.geometry("400x300")
 
 window.title("Macro Auto Paste - Saif")
 
+toggle_button = None  
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+open_windows = {}
+
+def open_single(name, build_func):
+    win = open_windows.get(name)
+    if win is not None and win.winfo_exists():
+        win.lift()
+        win.focus_force()
+        return
+    win = tk.Toplevel(window)
+    open_windows[name] = win
+    build_func(win)
+
+
+
+
+def build_shortcut_window(new_window):
+    new_window.title("Make New Text Shortcut")
+    # ... labels, text boxes, submit button ...
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 def open_expander_window():
+    global toggle_button
     exwindow = tk.Toplevel(window)
     exwindow.title("Text Expander")
     exwindow.geometry("300x150")
@@ -73,12 +112,12 @@ def open_expander_window():
 
         update_status()
 
-    toggle_button = tk.Button(
-        window,
-        width=15,
-        command=toggle
-    )
-    toggle_button.pack()
+
+    if toggle_button is None or not toggle_button.winfo_exists():
+        toggle_button = tk.Button(window, width=15, command=toggle)
+        toggle_button.pack()
+    else:
+        toggle_button.config(command=toggle)   # point it at the new window's toggle
 
     update_status()
 
@@ -133,6 +172,13 @@ def make_new_shortcut():
             if trig == comName or trig.startswith(comName) or comName.startswith(trig)
         ]
 
+        if not comName or comName == "/":
+            messagebox.showerror("Missing Command", "Enter a command name.")
+            return
+        if not ts.strip():
+            messagebox.showerror("Missing Template", "Enter the text to paste.")
+            return
+
         if collisions:
             conflict_list = ", ".join(collisions)
             messagebox.showerror(
@@ -152,14 +198,43 @@ def make_new_shortcut():
     label1 = tk.Label(new_window, text="Command Name (it has to start with '/'):")
     label1.pack(side="top", padx=5)
 
-    text_box1 = tk.Text(new_window, width=50, height =1)
-    text_box1.pack(side="top",padx=10,pady=10)
+    FORBIDDEN = set(' \t\n"\\')   # characters you don't want
+
+    def allow_input(new_text):
+        return not any(ch in FORBIDDEN for ch in new_text)
+
+    vcmd = (new_window.register(allow_input), "%P")
+
+ 
+
+
+    text_box1 = tk.Entry(new_window, width=50,
+                        validate="key", validatecommand=vcmd)
+    text_box1.pack(padx=10, pady=10)
 
     label2 = tk.Label(new_window, text="Text Shortcut/Template:")
     label2.pack(side="top", padx=5)
 
     text_box2 = tk.Text(new_window, width=50, height=1)
     text_box2.pack(side="top",padx=10,pady=10)
+
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
 
     submitBtn = tk.Button(
     new_window,
