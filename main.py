@@ -7,24 +7,29 @@ import pyperclip
 from pynput import keyboard as kb
 from pynput.keyboard import Controller, Key
 
-
-path = 'snippets.json'
-def load_snippets(path):
-    with open(path, encoding='utf-8') as f:
-        return json.load(f)
-
-def save_snippets(path, snippets):
-    with open(path, 'w', encoding='utf-8') as f:
-        json.dump(snippets, f, indent=2, ensure_ascii=False)
-
-#load_snippets(path)
+SNIPPETS_FILE = "snippets.json"
 RELOAD_INTERVAL = 5
 
-
 stop_event = threading.Event()
-
-
 snippets = {}
+snippets_lock = threading.Lock()
+
+def read_snippets_file(path=SNIPPETS_FILE):
+    with open(path, encoding="utf-8") as f:
+        return json.load(f)
+
+def load_snippets(path=SNIPPETS_FILE):
+    data = read_snippets_file(path)
+    with snippets_lock:
+        snippets.clear()
+        snippets.update(data)
+    return data
+
+def save_snippets(snippets_to_save, path=SNIPPETS_FILE):
+    with open(path, "w", encoding="utf-8") as f:
+        json.dump(snippets_to_save, f, indent=2, ensure_ascii=False)
+
+
 snippets_lock = threading.Lock()
 
 
@@ -52,7 +57,10 @@ def type_expansion(text: str):
 
 
 def on_press(key):
+
+    print("key pressed") #successful call
     global buffer
+    global snippets
 
     if key in (Key.space, Key.enter, Key.esc, Key.tab):
         buffer = []
@@ -78,10 +86,11 @@ def on_press(key):
     with snippets_lock:
         local_snippets = dict(snippets)
 
-
+    #print(snippets.items())
 
 
     for command, template in local_snippets.items():
+        print(str(command))
         if current.endswith(command):
             time.sleep(0.05)
             delete_command(command)
@@ -104,10 +113,10 @@ def reload_loop():
 
     while not stop_event.is_set():
         try:
-            mtime = os.path.getmtime(path)
+            mtime = os.path.getmtime(SNIPPETS_FILE)
 
             if mtime != last_mtime:
-                loaded = load_snippets(path)
+                loaded = load_snippets(SNIPPETS_FILE)
                 last_mtime = mtime
 
                 print(
@@ -135,12 +144,14 @@ def start():
     print("Starting text expander...")
 
     # Load snippets immediately
-    load_snippets(path)
+    load_snippets(SNIPPETS_FILE)
 
     # Reset the stop signal
     stop_event.clear()
 
     running = True
+
+    print("test 1")
 
     # Start the snippet reloader in the background
     reloader = threading.Thread(

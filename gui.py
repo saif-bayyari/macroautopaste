@@ -55,30 +55,28 @@ def open_single(name, build_func):
 
 
 
-def build_shortcut_window(new_window):
-    new_window.title("Make New Text Shortcut")
+#def build_shortcut_window(new_window):
+   # new_window.title("Make New Text Shortcut")
     # ... labels, text boxes, submit button ...
 
 
 
 
+#new_button = tk.Button(button_frame, text="Make new text shortcut", width=25,
+                      # command=lambda: open_single("shortcut", build_shortcut_window))
+
+
+
+#def open_expander_window_v2():
+
+   # pass
 
 
 
 
-
-
-
-
-
-
-
-
-
-
-def open_expander_window():
+def open_expander_window(exwindow):
     global toggle_button
-    exwindow = tk.Toplevel(window)
+    #exwindow = tk.Toplevel(window)
     exwindow.title("Text Expander")
     exwindow.geometry("300x150")
     exwindow.resizable(False, False)
@@ -260,7 +258,7 @@ button_frame.pack(pady=40)
 new_button = tk.Button(button_frame, text="Make new text shortcut", width = 25, command=make_new_shortcut)
 new_button.pack(pady=(0,20))
 
-new_button2 = tk.Button(button_frame, text="Run Text Expander", width = 25, command=open_expander_window)
+new_button2 = tk.Button(button_frame, text="Run Text Expander", width = 25, command=lambda:open_single("expander", open_expander_window))
 new_button2.pack(pady=(0,20))
 
 
